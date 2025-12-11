@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gaza Emergency — Feed a Child Now</title>
+<link rel="preconnect" href="https://js.stripe.com">
+<style>
+  :root{
+    --bg:#fbfcfd;
+    --card:#ffffff;
+    --accent:#c62828; /* emotional red */
+    --accent-2:#ff7043;
+    --muted:#6b7875;
+    --success:#2ea86b;
+    --glass: rgba(11,26,23,0.04);
+    --max-width:980px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:var(--bg);color:#0b1a17;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:var(--max-width);margin:0 auto;padding:18px}
+  /* top urgent bar */
+  .urgent-bar{background:linear-gradient(90deg,#b71c1c,#ff7043);color:#fff;padding:10px;border-radius:10px;text-align:center;font-weight:800;margin-bottom:14px;box-shadow:0 6px 20px rgba(198,40,40,0.12)}
+  /* hero */
+  .hero{display:flex;flex-direction:column;gap:12px;align-items:stretch;background:var(--card);padding:20px;border-radius:14px;box-shadow:0 10px 40px rgba(11,26,23,0.06)}
+  .hero-top{display:flex;gap:18px;align-items:center}
+  .hero-img{flex:0 0 180px;height:120px;border-radius:10px;overflow:hidden;background:#ddd}
+  .hero-img img{width:100%;height:100%;object-fit:cover;display:block}
+  .hero-copy{flex:1}
+  .kicker{color:var(--accent);font-weight:800;font-size:13px;margin-bottom:6px}
+  .title{font-size:20px;font-weight:900;margin:0 0 6px}
+  .subtitle{color:var(--muted);margin:0;font-size:14px;line-height:1.45}
+  /* progress */
+  .progress-card{background:#fff;border-radius:12px;padding:16px;margin-top:14px;border:1px solid var(--glass);box-shadow:0 8px 28px rgba(11,26,23,0.03)}
+  .amount-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .raised{font-weight:900;font-size:28px}
+  .goal{color:var(--muted);font-size:14px}
+  .meter{height:12px;background:#f2fbf7;border-radius:999px;overflow:hidden;margin:12px 0}
+  .meter > i{display:block;height:100%;background:linear-gradient(90deg,var(--success),#8ef2b8);width:65%}
+  .meta-flex{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+  .meta{background:#f8fffb;padding:8px 12px;border-radius:8px;font-weight:800;color:#083c2f}
+  .meta small{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-top:4px}
+  /* donation grid */
+  .donation-card{background:#fff;border-radius:12px;padding:14px;margin-top:14px;border:1px solid var(--glass)}
+  .donation-grid{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .don-btn{flex:1 1 140px;padding:12px;border-radius:10px;border:1px solid var(--glass);background:#fff;font-weight:900;cursor:pointer;transition:transform .12s,box-shadow .12s}
+  .don-btn.sel{border-color:var(--success);background:#f1fff6;box-shadow:0 6px 20px rgba(46,168,107,0.12)}
+  .don-btn:hover{transform:translateY(-4px)}
+  .donary-note{font-size:13px;color:var(--muted);margin-top:8px}
+  /* CTA fixed */
+  .fixed-cta{position:fixed;left:16px;right:16px;bottom:18px;background:var(--accent);color:#fff;padding:14px;border-radius:12px;text-align:center;font-weight:900;z-index:80;box-shadow:0 20px 60px rgba(198,40,40,0.18)}
+  .fixed-cta button{background:transparent;border:none;color:inherit;font-size:16px;font-weight:900;cursor:pointer}
+  /* recent donations */
+  .recent{margin-top:14px;background:#fff;border-radius:12px;padding:14px;border:1px solid var(--glass)}
+  .recent h3{margin:0 0 12px;font-size:16px}
+  .recent-list{list-style:none;padding:0;margin:0;max-height:220px;overflow:hidden}
+  .recent-list li{display:flex;justify-content:space-between;padding:10px 6px;border-bottom:1px solid #f2f6f4;color:var(--muted);font-weight:700}
+  .trust-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center}
+  .badge{background:#fff;padding:8px 10px;border-radius:8px;border:1px solid var(--glass);font-weight:800;color:var(--muted)}
+  .testimonials{margin-top:14px;background:#fff;border-radius:12px;padding:14px;border:1px solid var(--glass)}
+  .testimonials p{margin:0;color:var(--muted)}
+  footer{margin-top:22px;text-align:center;color:var(--muted);font-size:13px;padding-bottom:80px}
+  @media(min-width:900px){
+    .hero-top{gap:28px}
+    .hero-img{height:160px;flex:0 0 220px}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Urgency bar -->
+    <div class="urgent-bar" id="urgentBar">
+      Campaign ends in <strong id="countdownTop">4d 12h 32m</strong> — supplies and distribution slot will be lost if the target is not met.
+    </div>
+
+    <!-- Hero -->
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-top">
+        <div class="hero-img" aria-hidden="true">
+          <!-- Replace with real emotional photo before deploy -->
+          <img id="heroPhoto" src="https://placehold.co/600x400?text=Gaza+Relief" alt="children receiving food"/>
+        </div>
+        <div class="hero-copy">
+          <div class="kicker">EMERGENCY • FOOD & MEDICINE</div>
+          <h1 id="heroTitle" class="title">Feed a child in Gaza — urgent distribution this week</h1>
+          <p class="subtitle">Shelves are empty. Clinics are short of supplies. Your donation buys food packs and emergency medicine delivered within 24–48 hours to families on the ground.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Progress -->
+    <section class="progress-card" aria-labelledby="progressLabel">
+      <div class="amount-row">
+        <div>
+          <div class="raised" id="raisedAmount">$65,080</div>
+          <div class="goal">of <strong>$100,000</strong> goal</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div style="font-weight:900;color:#b71c1c;font-size:18px">Urgent: <span id="urgentLeft">$34,920</span> left</div>
+          <div style="font-size:13px;color:var(--muted)">Targeted distribution in 4 days</div>
+        </div>
+      </div>
+
+      <div class="meter" aria-hidden="true"><i style="width:65%"></i></div>
+
+      <div class="meta-flex" aria-hidden="true">
+        <div class="meta">65%<small>Reached</small></div>
+        <div class="meta"><span id="daysLeftDisplay">4 days</span><small>Remaining</small></div>
+        <div class="meta">$34,920<small>Needed</small></div>
+      </div>
+
+      <div style="margin-top:12px" class="donation-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div style="font-weight:900">Choose an amount</div>
+          <div style="font-size:13px;color:var(--muted)">Secure payment — receipt & distribution report after delivery</div>
+        </div>
+
+        <div class="donation-grid" id="donationGrid">
+          <!-- Buttons redirect straight to the Payment Links provided -->
+          <button class="don-btn sel" data-link="https://donate.stripe.com/9B69AS7XHbXG7ct8Kkc3m07">$10</button>
+          <button class="don-btn" data-link="https://donate.stripe.com/5kQ4gyem58Lu0O54u4c3m08">$25</button>
+          <button class="don-btn" data-link="https://donate.stripe.com/5kQfZg5PzgdW54lf8Ic3m09">$50</button>
+          <button class="don-btn" data-link="https://donate.stripe.com/bJe4gygud6DmdAR6Ccc3m0a">$100</button>
+          <button class="don-btn" data-link="https://donate.stripe.com/5kQeVcgudgdWaoFgcMc3m0b">$250</button>
+          <button class="don-btn" data-link="https://donate.stripe.com/3cIeVcem53ra54l4u4c3m0c">Custom amount</button>
+        </div>
+
+        <div class="donary-note">By donating you’ll receive a receipt from the payment processor and a delivery report after the distribution.</div>
+      </div>
+    </section>
+
+    <!-- Recent donations -->
+    <section class="recent" aria-labelledby="recentLabel">
+      <h3 id="recentLabel">Recent donations</h3>
+      <ul class="recent-list" id="recentList" aria-live="polite">
+        <li><span>Amira G.</span><span>$25</span></li>
+        <li><span>Jacob R.</span><span>$50</span></li>
+        <li><span>Sara M.</span><span>$10</span></li>
+        <li><span>Hussein A.</span><span>$100</span></li>
+      </ul>
+
+      <div class="trust-row" aria-hidden="true">
+        <div class="badge">Direct delivery</div>
+        <div class="badge">Local partner verified</div>
+        <div class="badge">Transparent reporting</div>
+      </div>
+    </section>
+
+    <!-- Testimonials / Transparency -->
+    <section class="testimonials" aria-labelledby="testLabel">
+      <h3 id="testLabel">Why donors trust this campaign</h3>
+      <p>Local partners and vetted field teams receive funds directly for food packs, medical supplies and emergency transportation. After the distribution we publish a verified delivery report with receipts and photos.</p>
+    </section>
+
+    <footer>
+      Payments are processed securely. By donating you agree to the privacy and refund policy. For transparency requests, reply to the email receipt and we will provide distribution evidence.
+    </footer>
+  </div>
+
+  <!-- Fixed CTA -->
+  <div class="fixed-cta" id="fixedCta">
+    <button id="mainDonateBtn">DONATE NOW</button>
+  </div>
+
+<script>
+/* ========= CONFIG: none required; links are embedded in buttons above ========= */
+
+/* Countdown timer — change targetDays if you want a different urgency */
+const targetEnd = new Date(Date.now() + (4 * 24 * 60 * 60 * 1000)); // 4 days from now
+function updateCountdown(){
+  const now = new Date();
+  let diff = Math.max(0, targetEnd - now);
+  const days = Math.floor(diff / (24*60*60*1000)); diff %= 24*60*60*1000;
+  const hours = Math.floor(diff / (60*60*1000)); diff %= 60*60*1000;
+  const mins = Math.floor(diff / (60*1000));
+  const top = document.getElementById('countdownTop');
+  const daysDisplay = document.getElementById('daysLeftDisplay');
+  if(top) top.textContent = `${days}d ${hours}h ${mins}m`;
+  if(daysDisplay) daysDisplay.textContent = `${days} days`;
+}
+updateCountdown();
+setInterval(updateCountdown, 60000);
+
+/* Donation button behavior */
+const donationGrid = document.getElementById('donationGrid');
+let selectedBtn = donationGrid.querySelector('.don-btn.sel') || donationGrid.querySelector('.don-btn');
+
+donationGrid.addEventListener('click', e=>{
+  const btn = e.target.closest('.don-btn'); if(!btn) return;
+  donationGrid.querySelectorAll('.don-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  selectedBtn = btn;
+});
+
+/* Main donate CTA — redirects to selected payment link */
+document.getElementById('mainDonateBtn').addEventListener('click', ()=>{
+  if(!selectedBtn) return alert('Please select an amount');
+  const link = selectedBtn.dataset.link;
+  window.location.href = link;
+});
+
+/* Also allow direct click on donation buttons to immediately open link (double-click to avoid accidental) */
+donationGrid.querySelectorAll('.don-btn').forEach(btn=>{
+  btn.addEventListener('dblclick', ()=> {
+    window.location.href = btn.dataset.link;
+  });
+});
+
+/* Fake-live recent donations feed — only cosmetic; replace with server updates when you have backend */
+const recentList = document.getElementById('recentList');
+const fakeNames = ['Leila','Omar','Fatima','Hassan','Nadia','Ibrahim','Yara','Sara','David','Maya'];
+const amounts = [10,25,50,100,250];
+setInterval(()=>{
+  const name = fakeNames[Math.floor(Math.random()*fakeNames.length)];
+  const amt = amounts[Math.floor(Math.random()*amounts.length)];
+  const li = document.createElement('li');
+  li.innerHTML = `<span>${name}.</span><span>$${amt}</span>`;
+  recentList.insertBefore(li, recentList.firstChild);
+  if(recentList.children.length>6) recentList.removeChild(recentList.lastChild);
+}, 7000);
+
+/* Credibility: set initial raised amount and animate small bumps when donations added (cosmetic) */
+let raised = 65080; // as requested, symbolic credibility
+const goal = 100000;
+const raisedEl = document.getElementById('raisedAmount');
+const neededEl = document.getElementById('urgentLeft');
+const meter = document.querySelector('.meter > i');
+
+function refreshRaisedDisplay(){
+  raisedEl.textContent = `$${raised.toLocaleString()}`;
+  const left = Math.max(0, goal - raised);
+  if(neededEl) neededEl.textContent = `$${left.toLocaleString()}`;
+  const pct = Math.min(100, Math.round((raised/goal)*100));
+  if(meter) meter.style.width = pct + '%';
+  const reached = document.querySelector('.meta');
+  // update the 65% box label if present
+}
+refreshRaisedDisplay();
+
+/* simulate occasional donations to make site look active (visual only) */
+setInterval(()=>{
+  const add = [10,25,50,100][Math.floor(Math.random()*4)];
+  raised += add;
+  if(raised > goal) raised = goal;
+  refreshRaisedDisplay();
+}, 12000);
+
+</script>
+</body>
+</html>
